@@ -8,8 +8,8 @@ import QuizWelcome from "../../components/QuizWelcome";
 
 export default function Home() {
   return (
-   <div className="relative min-h-screen overflow-hidden bg-black">
-    <div className="absolute inset-0 z-0">
+   <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(135deg,_#1f003a_0%,_#3c024d_30%,_#6a008f_60%,_#0d335d_100%)]">
+    {/* <div className="absolute inset-0 z-0">
   <LiquidEther
     colors={[ '#7209b7', '#b5179e', '#7209b7' ]}
     mouseForce={40}
@@ -27,7 +27,7 @@ export default function Home() {
     autoResumeDelay={3000}
     autoRampDuration={0.6}
   />
-</div>
+</div> */}
 
     <Header />
     <QuizWelcome />
