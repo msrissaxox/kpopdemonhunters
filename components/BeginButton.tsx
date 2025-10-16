@@ -1,19 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import questions from "../data/data";
 
 export default function BeginButton() {
+  const [questionNum, setQuestionNum] = useState(0);
+
   //work on function to retrieve only one question at a time
-  const retrieveNextQuestion = function (questions: any) {
-    for (let i = 0; i < questions.length; i++) {
-      console.log(questions[i].question);
+  const retrieveNextQuestion = function (questionsArray: any[]) {
+    //checking to see if array exists
+    if (!Array.isArray(questionsArray) || questionsArray.length === 0) {
+      console.log("Questions data is not available or empty.");
+      return; // Exit the function if data is invalid
     }
+
+    if (questionNum < questionsArray.length) {
+      console.log(questionsArray[questionNum]);
+      setQuestionNum(questionNum + 1);
+    } else {
+      console.log("There are no more questions");
+    }
+    console.log("questionsArray:", questionsArray);
   };
 
   //create function that will populate the first question of the quiz
   const buttonClick = function () {
-    console.log("I was clicked");
-    console.log(questions);
-    console.log(questions.length);
     retrieveNextQuestion(questions);
   };
 

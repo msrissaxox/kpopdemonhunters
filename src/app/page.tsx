@@ -3,7 +3,7 @@ import LiquidEther from "../../LiquidEther";
 import Image from "next/image";
 import Header from "../../components/Header";
 import QuizWelcome from "../../components/QuizWelcome";
-
+import Quiz from "../../components/Quiz";
 
 
 export default function Home() {
@@ -31,6 +31,7 @@ export default function Home() {
 
     <Header />
     <QuizWelcome />
+    <Quiz />
     </div>
-  );
-}
+  )
+};
