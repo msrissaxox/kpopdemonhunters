@@ -1,37 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# kpopdemonhunters
 
-## Getting Started
+Overview
+-
+Small Next.js quiz app (K-POP Demon Hunters). The app shows a welcome screen, a sequence of questions, and a result screen that picks the top character (`Rumi`, `Mira`, `Zoey`, `Jinu`) based on per-option score maps.
 
-First, run the development server:
-
+Run
+-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Key files & responsibilities
+-
+- `src/app/page.tsx` — owner/controller. Holds primary state and functions:
+  - State: `questionNum`, `currentQuestion`, `showWelcome`, `quizComplete`, `totalScores`.
+  - Functions: `retrieveNextQuestion(questions)`, `handleAnswerClick(selectedScores)`, `calculateFinalResult()`, `handleRestart()`.
+  - Renders: `Header`, `QuizWelcome` (when showing welcome), `Quiz` (active question), and `QuizEnd` (results).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `components/Quiz.tsx` — presentational question UI. Props:
+  - `question: QuestionData | null` — question and option text.
+  - `questionIndex?: number` — (optional) index of current question.
+  - `onAnswer: (selectedScores: Scores) => void` — called with the selected option's score map.
+  - `onEndQuiz?: () => void` — called when user clicks "End Quiz" early.
 
-## Learn More
+- `components/QuizWelcome.tsx` — welcome screen. Props:
+  - `onStartQuiz: () => void` — starts the quiz (calls into `page.tsx` to load first question).
 
-To learn more about Next.js, take a look at the following resources:
+- `components/BeginButton.tsx` — button used on welcome; prop `onAction: () => void`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `components/QuizEnd.tsx` — displays top match and `scores`. Props:
+  - `result: string | null`, `scores: Scores`, `onRestart: () => void`.
 
+Data shape
+-
+- `questions` (in `data/data.tsx`) — each question has `options`, and each option has a `scores` object: `{ Rumi: number, Mira: number, Zoey: number, Jinu: number }`. When a user selects an option, those values are added to the running `totalScores`.
 
+State & scoring flow
+-
+1. User clicks "Begin" → `page.tsx` calls `retrieveNextQuestion()` and shows the first `Quiz`.
+2. `Quiz` renders options; on click it extracts `option.scores` and calls `onAnswer(selectedScores)`.
+3. `page.tsx`'s `handleAnswerClick` updates `totalScores` (adds per-character values), then advances to the next question.
+4. When questions end or user clicks "End Quiz", `quizComplete` becomes true and `QuizEnd` is rendered. `calculateFinalResult()` sorts `totalScores` and returns the top character.
 
-## Deploy on Vercel
+Design notes
+-
+- Single source of truth: app-level state is in `page.tsx`. Components receive needed data/handlers via props.
+- If you need to support changing answers or undo, store each answer in an `answers[]` array and recompute totals from that array (recommended to avoid drift).
+- Persistence: to survive reloads, persist `answers` or `totalScores` to `localStorage` (rehydrate on load).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Tech
+-
+- Next.js 13 (App Router)
+- React + TypeScript
+- Tailwind CSS for styling
+- `next/font` for optimized fonts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# kpopdemonhunters
+Responsive & accessibility
+-
+- Components use responsive Tailwind classes; buttons are full-width on mobile for better tap targets.
+- Consider adding `aria-*` attributes and keyboard focus states for further accessibility improvements.
+
+If you want, I can:
+- Move shared types (e.g., `Scores`) to `src/types.ts` and import them across components.
+- Add `localStorage` persistence and hydration for `answers` / `totalScores`.
+- Add character descriptions to `QuizEnd` for the top match.

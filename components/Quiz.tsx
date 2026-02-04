@@ -1,62 +1,76 @@
+//This component handles user interaction and state communication, sending data back up to the parent component
+
 import React from "react";
-// import questions from "../data/data";
+//base unit, ensuring every answer choice has exactly these four characters.
 
+interface Scores {
+  Rumi: number;
+  Mira: number;
+  Zoey: number;
+  Jinu: number;
+}
 
-    // Define the structure of a single answer/option object
-interface Answer {
+//This represents a single button. 
+interface Option {
   text: string;
-  scores: any; // Assuming 'scores' is an object; adjust if you know its specific structure
+  scores: Scores;
 }
 
-// Define the structure of the entire question object
+//This represents the question data structure. 
 interface QuestionData {
-  question: string; // The question text itself
-  options: Answer[]; // An array of the Answer interface we just defined
+  question: string;
+  options: Option[];
 }
+//this is the doorway to the component. It defines the props that the parent component must provide.
+//onAnswer type tells us when the user clicks a button, the component will ship a scores object back up to the parent.
 
-// Define the props for the Quiz component
 interface QuizProps {
-  question: QuestionData | null; 
-  onAnswer: () => void; // A function that takes no arguments and returns nothing
+  question: QuestionData | null;
+  questionIndex?: number;
+  onAnswer: (selectedScores: Scores) => void;
+  onEndQuiz?: () => void;
 }
 
-
-export default function Quiz({question, onAnswer}: QuizProps) {
-
-
-
-console.log(question)
-// console.log(onAnswer)
-   //if question is null or undefined
-   if(!question ||!question.question){
+export default function Quiz({ question, onAnswer, onEndQuiz }: QuizProps) {
+  if (!question || !question.question) {
     return (
-        <div>
+      <div>
         <p className="text-white">Quiz is still loading, or quiz is complete</p>
-        </div>
-    )
-   }
-    function handleAnswerClick(answer: any): void {
-        throw new Error("Function not implemented.");
-    }
-
-  return (   
-    <div className="m-20 border-amber-500 border-2 rounded-xl p-20 border-amber-600m-25">
-      <p className=" text-white text-center text-2xl">Current question: {question.question}</p>
-    <p>Current answer choices: {question.options.map((answer, index) => (
-        <button
-                        // Use a stable key, like an 'id' if available, otherwise 'index'
-                        key={answer.text || index} 
-                        className="p-3 bg-purple-700 hover:bg-purple-600 rounded-md m-4 transition duration-200 text-left text-white"
-                        
-                        // 3. Attach the handler to call the parent's logic
-                        onClick={() => handleAnswerClick(answer)}
-                    >
-                        {/* 4. Display the individual answer text property */}
-                        {answer.text} 
-                    </button>
-    ))}</p>
-   
       </div>
+    );
+  }
 
+  function handleAnswerClick(optionIndex: number): void {
+    const selected = question!.options[optionIndex].scores as Scores;
+    onAnswer(selected);
+  }
+
+  return (
+    <div className="m-6 sm:m-12 lg:m-20 p-6 sm:p-12 lg:p-16 rounded-xl bg-white/5 text-center max-w-4xl mx-auto">
+      <p className="text-white text-center text-base md:text-lg lg:text-2xl">Current question: {question.question}</p>
+      <div className="mt-4 text-left text-white">Current answer choices:
+        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+        {question.options.map((answer, index) => (
+          <button
+            key={answer.text || index}
+            className="w-full p-3 bg-purple-700 hover:bg-purple-600 rounded-md transition duration-200 text-left text-white"
+            onClick={() => handleAnswerClick(index)}
+          >
+            {answer.text}
+          </button>
+        ))}
+        </div>
+      </div>
+      <div className="mt-6 text-center">
+        <button
+          className="w-full md:w-auto px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded"
+          onClick={() => {
+            if (onEndQuiz) onEndQuiz();
+          }}
+        >
+          End Quiz
+        </button>
+      </div>
+    </div>
   );
 }
